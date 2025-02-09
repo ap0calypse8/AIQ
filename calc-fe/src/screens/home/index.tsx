@@ -4,6 +4,7 @@ import {SWATCHES} from '@/constants';
 import {Button} from '@/components/ui/button';
 import axios from 'axios';
 import Draggable from 'react-draggable';
+import { log } from 'console';
 
 
 interface Response {
@@ -16,6 +17,9 @@ interface GeneratedResult {
     expression: string;
     answer:string;
 }
+
+const undoStack: ImageData[] = [];
+const redoStack: ImageData[] = [];
 
 export default function Home() {
     const canvasRef  = useRef<HTMLCanvasElement>(null);
@@ -105,28 +109,33 @@ export default function Home() {
     };
 
     // Undo/Redo stacks
-  //const undoStack: ImageData[] = [];
-  //const redoStack: ImageData[] = [];
 
-  /*const saveState = () => {
+
+  const saveState = () => {
     const canvas = canvasRef.current;
     if (canvas) {
         const context = canvas.getContext('2d');
         if (context) {
+            console.log("Pushed!");
             undoStack.push(context.getImageData(0, 0, canvas.width, canvas.height));
             // Limit undo stack size if needed (e.g., keep the last 50 states)
             if (undoStack.length > 50) undoStack.shift();
             redoStack.length = 0; // Clear redoStack whenever a new action is taken
         }
     }
-};*/
+};
 
 
- /* const undo = () => {
-    if (undoStack.length === 0) return;
+ const undo = () => {
 
-    const canvas = canvasRef.current;
-    if (canvas) {
+    console.log(undoStack);
+
+     if (undoStack.length === 0) { 
+        return ;
+     }
+     
+     const canvas = canvasRef.current;
+     if (canvas) {
       const context = canvas.getContext('2d');
       if (context) {
         redoStack.push(context.getImageData(0, 0, canvas.width, canvas.height));
@@ -137,10 +146,12 @@ export default function Home() {
   };
 
   const redo = () => {
-    if (redoStack.length === 0) return;
-
-    const canvas = canvasRef.current;
-    if (canvas) {
+      if (redoStack.length === 0) {
+        return ;
+      } 
+      
+      const canvas = canvasRef.current;
+      if (canvas) {   
       const context = canvas.getContext('2d');
       if (context) {
         undoStack.push(context.getImageData(0, 0, canvas.width, canvas.height));
@@ -148,7 +159,7 @@ export default function Home() {
         if (nextState) context.putImageData(nextState, 0, 0);
       }
     }
-  };*/
+  };
 
     const resetCanvas = () => {
         const canvas = canvasRef.current;
@@ -158,8 +169,8 @@ export default function Home() {
                 ctx.clearRect(0,0, canvas.width, canvas.height);
             }
          }
-         //undoStack.length = 0;
-         //redoStack.length = 0; 
+         undoStack.length = 0;
+         redoStack.length = 0; 
     };
 
     const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -232,7 +243,7 @@ export default function Home() {
         context.lineWidth = brushSize;
         context.stroke();
         // Save state for undo/redo after each draw step
-        //saveState();
+        saveState();
     }
 };
 
@@ -344,6 +355,22 @@ return (
                         onClick={() => setColor(swatchColor)}
                     />
                 ))}
+            </div>
+
+            {/* Undo/Redo Buttons */}
+            <div className="flex gap-4">
+                <Button
+                    onClick={undo}
+                    className="px-4 py-2 text-white bg-gray-700 rounded-md shadow-md hover:bg-gray-800 transition duration-300"
+                >
+                    Undo
+                </Button>
+                <Button
+                    onClick={redo}
+                    className="px-4 py-2 text-white bg-gray-700 rounded-md shadow-md hover:bg-gray-800 transition duration-300"
+                >
+                    Redo
+                </Button>
             </div>
 
             {/* Brush Size */}
