@@ -4,7 +4,7 @@ import {SWATCHES} from '@/constants';
 import {Button} from '@/components/ui/button';
 import axios from 'axios';
 import Draggable from 'react-draggable';
-import { log } from 'console';
+//import { log } from 'console';
 
 
 interface Response {
